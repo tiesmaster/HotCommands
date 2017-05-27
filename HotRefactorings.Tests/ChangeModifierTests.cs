@@ -105,6 +105,54 @@ namespace HotRefactorings.Tests
             VerifyRefactoring(oldSource, newSource, 30, "To Internal");
         }
 
+        [Fact]
+        public void ToInternalOnEnum()
+        {
+            var oldSource =
+@"internal enum MyEnum
+{
+}";
+
+            var newSource =
+@"public enum MyEnum
+{
+}";
+
+            VerifyRefactoring(oldSource, newSource, 0, "To Public");
+        }
+
+        [Fact]
+        public void ToInternalOnStruct()
+        {
+            var oldSource =
+@"internal struct MyStruct
+{
+}";
+
+            var newSource =
+@"public struct MyStruct
+{
+}";
+
+            VerifyRefactoring(oldSource, newSource, 0, "To Public");
+        }
+
+        [Fact]
+        public void ToInternalOnInterface()
+        {
+            var oldSource =
+@"internal interface IInterface
+{
+}";
+
+            var newSource =
+@"public interface IInterface
+{
+}";
+
+            VerifyRefactoring(oldSource, newSource, 0, "To Public");
+        }
+
         private static string CreateClassWithModifier(string modifier)
         {
             return $@"{modifier} class Class1
