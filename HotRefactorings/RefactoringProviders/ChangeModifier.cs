@@ -20,8 +20,6 @@ namespace HotCommands
             if (node == null) return;
             // Skip if this is the main class (ie. has the same filename)
             //if (context.Document.Name.ToLowerInvariant() == $"{node.Identifier.ToString().ToLowerInvariant()}.cs") return;
-            // Skip if nested class (Nested implementation needs work. Disabled for now.)
-            if (node.IsNested()) return;
 
             // Activate if modifier is Public, Private, Protected or Internal
             var mainModifierCount = node.Modifiers.Count(m => m.IsKind(SyntaxKind.PublicKeyword) ||

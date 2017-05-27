@@ -34,9 +34,6 @@ namespace HotCommands
             BaseTypeDeclarationSyntax node = GetClassTypeNode(rootNode);
             if (node == null) return document;
 
-            BaseTypeDeclarationSyntax nodeClassConceiler = node.AncestorsAndSelf().OfType<BaseTypeDeclarationSyntax>().SingleOrDefault();
-            if (nodeClassConceiler == null) return document;
-
             // First, remove all but the first MainModifier
             while (HasMoreThanOneMainModifier(node))
             {

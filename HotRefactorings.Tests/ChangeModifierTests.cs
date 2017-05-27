@@ -61,6 +61,50 @@ namespace HotRefactorings.Tests
             VerifyRefactoring(oldSource, newSource, 0, "To Internal");
         }
 
+        [Fact]
+        public void ToInternalOnOuterClass()
+        {
+            var oldSource =
+@"public class OuterClass
+{
+    private class InnerClass
+    {
+    }
+}";
+
+            var newSource =
+@"internal class OuterClass
+{
+    private class InnerClass
+    {
+    }
+}";
+
+            VerifyRefactoring(oldSource, newSource, 0, "To Internal");
+        }
+
+        [Fact]
+        public void ToInternalOnInnerClass()
+        {
+            var oldSource =
+@"public class OuterClass
+{
+    private class InnerClass
+    {
+    }
+}";
+
+            var newSource =
+@"public class OuterClass
+{
+    internal class InnerClass
+    {
+    }
+}";
+
+            VerifyRefactoring(oldSource, newSource, 30, "To Internal");
+        }
+
         private static string CreateClassWithModifier(string modifier)
         {
             return $@"{modifier} class Class1
