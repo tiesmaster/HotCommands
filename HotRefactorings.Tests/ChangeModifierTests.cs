@@ -53,6 +53,14 @@ namespace HotRefactorings.Tests
         }
 
         [Fact]
+        public void StaticPublicClassToInternalShouldKeepStatic()
+        {
+            var oldSource = CreateClassWithModifier("static public");
+            var newSource = CreateClassWithModifier("internal static");
+            VerifyRefactoring(oldSource, newSource, 0, "To Internal");
+        }
+
+        [Fact]
         public void ClassWithCustomFormattingShouldNotBeLostAfterApplyRefactoring()
         {
             var oldSource = "public class Class1 { }";
