@@ -69,6 +69,22 @@ namespace HotRefactorings.Tests
             VerifyRefactoring(oldSource, newSource, 0, "To Internal");
         }
 
+        [Fact]
+        public void ClassWithTriviaInModifierTokenList_ShouldNotBeLostAfterApplyRefactoring()
+        {
+            var oldSource =
+@"public /* this should not get lost */ static class Class1
+{
+}";
+
+            var newSource =
+@"internal /* this should not get lost */ static class Class1
+{
+}";
+
+            VerifyRefactoring(oldSource, newSource, 0, "To Internal");
+        }
+
         private static string CreateClassWithModifier(string modifier)
         {
             return $@"{modifier} class Class1
