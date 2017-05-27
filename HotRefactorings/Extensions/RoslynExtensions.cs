@@ -83,5 +83,60 @@ namespace HotCommands
 
             return unusedUsings;
         }
+
+        public static SyntaxTokenList GetModifierTokens(this SyntaxNode declaration)
+        {
+            switch (declaration.Kind())
+            {
+                case SyntaxKind.ClassDeclaration:
+                    return ((ClassDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.StructDeclaration:
+                    return ((StructDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.InterfaceDeclaration:
+                    return ((InterfaceDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.EnumDeclaration:
+                    return ((EnumDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.DelegateDeclaration:
+                    return ((DelegateDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.MethodDeclaration:
+                    return ((MethodDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.OperatorDeclaration:
+                    return ((OperatorDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.ConversionOperatorDeclaration:
+                    return ((ConversionOperatorDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.ConstructorDeclaration:
+                    return ((ConstructorDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.DestructorDeclaration:
+                    return ((DestructorDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.FieldDeclaration:
+                    return ((FieldDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.PropertyDeclaration:
+                    return ((PropertyDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.IndexerDeclaration:
+                    return ((IndexerDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.EventFieldDeclaration:
+                    return ((EventFieldDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.EventDeclaration:
+                    return ((EventDeclarationSyntax)declaration).Modifiers;
+                case SyntaxKind.Parameter:
+                    return ((ParameterSyntax)declaration).Modifiers;
+                case SyntaxKind.LocalDeclarationStatement:
+                    return ((LocalDeclarationStatementSyntax)declaration).Modifiers;
+                case SyntaxKind.VariableDeclaration:
+                case SyntaxKind.VariableDeclarator:
+                    if (declaration.Parent != null)
+                    {
+                        return GetModifierTokens(declaration.Parent);
+                    }
+                    break;
+                case SyntaxKind.GetAccessorDeclaration:
+                case SyntaxKind.SetAccessorDeclaration:
+                case SyntaxKind.AddAccessorDeclaration:
+                case SyntaxKind.RemoveAccessorDeclaration:
+                    return ((AccessorDeclarationSyntax)declaration).Modifiers;
+            }
+
+            return default(SyntaxTokenList);
+        }
     }
 }

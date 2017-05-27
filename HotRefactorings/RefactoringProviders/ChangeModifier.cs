@@ -14,25 +14,27 @@ namespace HotCommands
         public override async Task ComputeRefactoringsAsync (CodeRefactoringContext context)
         {
             var rootNode = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var node = rootNode.FindNode(context.Span) as BaseTypeDeclarationSyntax;
+            var node = rootNode.FindNode(context.Span);
 
-            // Check if it's a Class/Type
-            if (node == null) return;
-            // Skip if this is the main class (ie. has the same filename)
-            //if (context.Document.Name.ToLowerInvariant() == $"{node.Identifier.ToString().ToLowerInvariant()}.cs") return;
+            if (!IsTypeDeclaration(node))
+            {
+                return;
+            }
+
+            var modifiers = node.GetModifierTokens();
 
             // Activate if modifier is Public, Private, Protected or Internal
-            var mainModifierCount = node.Modifiers.Count(m => m.IsKind(SyntaxKind.PublicKeyword) ||
+            var mainModifierCount = modifiers.Count(m => m.IsKind(SyntaxKind.PublicKeyword) ||
                                                               m.IsKind(SyntaxKind.ProtectedKeyword) ||
                                                               m.IsKind(SyntaxKind.InternalKeyword) ||
                                                               m.IsKind(SyntaxKind.PrivateKeyword));
             // Don't offer this refactoring if there are no modifiers (only because I don't know how to add new modifiers without "ReplaceToken")
             if (mainModifierCount == 0) return;
 
-            var hasPublicKeyword = node.Modifiers.Any(SyntaxKind.PublicKeyword);
-            var hasProtectedKeyword = node.Modifiers.Any(SyntaxKind.ProtectedKeyword);
-            var hasInternalKeyword = node.Modifiers.Any(SyntaxKind.InternalKeyword);
-            var hasPrivateKeyword = node.Modifiers.Any(SyntaxKind.PrivateKeyword);
+            var hasPublicKeyword = modifiers.Any(SyntaxKind.PublicKeyword);
+            var hasProtectedKeyword = modifiers.Any(SyntaxKind.ProtectedKeyword);
+            var hasInternalKeyword = modifiers.Any(SyntaxKind.InternalKeyword);
+            var hasPrivateKeyword = modifiers.Any(SyntaxKind.PrivateKeyword);
             var hasProtectedInternalKeywords = hasProtectedKeyword && hasInternalKeyword;
 
             var hasRedundantModifiers = (hasProtectedInternalKeywords && mainModifierCount > 2) ||
@@ -94,6 +96,20 @@ namespace HotCommands
                     Title = "To Protected Internal" + (hasRedundantModifiers ? " (Remove redundant modifiers)" : ""),
                     NewModifiers = new[] {SyntaxFactory.Token(SyntaxKind.ProtectedKeyword), SyntaxFactory.Token(SyntaxKind.InternalKeyword)}
                 }));
+            }
+        }
+
+        private bool IsTypeDeclaration(SyntaxNode declaration)
+        {
+            switch (declaration.Kind())
+            {
+                case SyntaxKind.ClassDeclaration:
+                case SyntaxKind.StructDeclaration:
+                case SyntaxKind.InterfaceDeclaration:
+                case SyntaxKind.EnumDeclaration:
+                    return true;
+                default:
+                    return false;
             }
         }
     }
