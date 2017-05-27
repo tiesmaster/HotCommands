@@ -105,57 +105,29 @@ namespace HotRefactorings.Tests
             VerifyRefactoring(oldSource, newSource, 30, "To Internal");
         }
 
-        [Fact]
-        public void ToInternalOnEnum()
+        [Theory]
+        [InlineData("enum")]
+        [InlineData("struct")]
+        [InlineData("interface")]
+        public void ToInternalOnTypeDeclarationTheory(string typeKeyword)
         {
-            var oldSource =
-@"internal enum MyEnum
-{
-}";
+            var typeName = typeKeyword + "1";
 
-            var newSource =
-@"public enum MyEnum
-{
-}";
+            var fromModifier = "internal";
+            var toModifier = "public";
 
-            VerifyRefactoring(oldSource, newSource, 0, "To Public");
-        }
-
-        [Fact]
-        public void ToInternalOnStruct()
-        {
-            var oldSource =
-@"internal struct MyStruct
-{
-}";
-
-            var newSource =
-@"public struct MyStruct
-{
-}";
-
-            VerifyRefactoring(oldSource, newSource, 0, "To Public");
-        }
-
-        [Fact]
-        public void ToInternalOnInterface()
-        {
-            var oldSource =
-@"internal interface IInterface
-{
-}";
-
-            var newSource =
-@"public interface IInterface
-{
-}";
+            var oldSource = CreateTypeWithModifier(typeKeyword, typeName, fromModifier);
+            var newSource = CreateTypeWithModifier(typeKeyword, typeName, toModifier);
 
             VerifyRefactoring(oldSource, newSource, 0, "To Public");
         }
 
         private static string CreateClassWithModifier(string modifier)
+            => CreateTypeWithModifier("class", "Class1", modifier);
+
+        private static string CreateTypeWithModifier(string typeKeyword, string typeName, string modifier)
         {
-            return $@"{modifier} class Class1
+            return $@"{modifier} {typeKeyword} {typeName}
 {{
 }}";
         }
