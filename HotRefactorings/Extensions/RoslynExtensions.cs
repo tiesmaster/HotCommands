@@ -138,5 +138,52 @@ namespace HotCommands
 
             return default(SyntaxTokenList);
         }
+
+        public static Accessibility GetAccessibility(this SyntaxNode declaration)
+        {
+            if (!CanHaveAccessibility(declaration))
+            {
+                return Accessibility.NotApplicable;
+            }
+
+            var modifierTokens = GetModifierTokens(declaration);
+            GetAccessibilityAndModifiers(modifierTokens, out var accessibility, out var modifiers);
+            return accessibility;
+        }
+
+        private bool CanHaveAccessibility(SyntaxNode declaration)
+        {
+            switch (declaration.Kind())
+            {
+                case SyntaxKind.ClassDeclaration:
+                case SyntaxKind.StructDeclaration:
+                case SyntaxKind.InterfaceDeclaration:
+                case SyntaxKind.EnumDeclaration:
+                case SyntaxKind.DelegateDeclaration:
+                case SyntaxKind.MethodDeclaration:
+                case SyntaxKind.OperatorDeclaration:
+                case SyntaxKind.ConversionOperatorDeclaration:
+                case SyntaxKind.ConstructorDeclaration:
+                case SyntaxKind.FieldDeclaration:
+                case SyntaxKind.PropertyDeclaration:
+                case SyntaxKind.IndexerDeclaration:
+                case SyntaxKind.EventFieldDeclaration:
+                case SyntaxKind.EventDeclaration:
+                case SyntaxKind.GetAccessorDeclaration:
+                case SyntaxKind.SetAccessorDeclaration:
+                case SyntaxKind.AddAccessorDeclaration:
+                case SyntaxKind.RemoveAccessorDeclaration:
+                    return true;
+                case SyntaxKind.VariableDeclaration:
+                case SyntaxKind.VariableDeclarator:
+                    return GetDeclarationKind(declaration) == DeclarationKind.Field;
+                case SyntaxKind.EnumMemberDeclaration:
+                case SyntaxKind.Parameter:
+                case SyntaxKind.LocalDeclarationStatement:
+                case SyntaxKind.DestructorDeclaration:
+                default:
+                    return false;
+            }
+        }
     }
 }
