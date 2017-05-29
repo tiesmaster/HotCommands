@@ -171,6 +171,7 @@
     <Compile Include="Extensions\CSharpExtensions.cs" />
     <Compile Include="Extensions\RoslynExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RefactoringProviders\AddNewlineBetweenUsingsGroups.cs" />
     <Compile Include="RefactoringProviders\ExtractClassToAFile.cs" />
     <Compile Include="RefactoringProviders\ChangeModifier.cs" />
     <Compile Include="RefactoringProviders\InitializeFieldFromConstructor.cs" />
