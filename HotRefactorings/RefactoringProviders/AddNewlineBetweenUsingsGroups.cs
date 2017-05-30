@@ -36,7 +36,15 @@ namespace HotCommands.RefactoringProviders
         private string GetFirstName(NameSyntax nameNode)
         {
             var identifierNode = nameNode as IdentifierNameSyntax;
-            return identifierNode.ToString();
+            if (identifierNode != null)
+            {
+                return identifierNode.ToString();
+            }
+            else
+            {
+                var qualifiedNode = (QualifiedNameSyntax)nameNode;
+                return GetFirstName(qualifiedNode.Left);
+            }
         }
     }
 
