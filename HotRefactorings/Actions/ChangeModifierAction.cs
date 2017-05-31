@@ -38,18 +38,32 @@ namespace HotCommands
 
         protected override async Task<Document> GetChangedDocumentAsync (CancellationToken cancellationToken)
         {
-            Document document = _context.Document;
+            var document = _context.Document;
 
-            SyntaxNode rootNode = await document.GetSyntaxRootAsync(_context.CancellationToken).ConfigureAwait(false);
-            BaseTypeDeclarationSyntax node = GetClassTypeNode(rootNode);
+            var rootNode = await document.GetSyntaxRootAsync(_context.CancellationToken).ConfigureAwait(false);
+            var node = GetTypeNode(rootNode);
+
             if (node == null) return document;
+
+            var classNode = node as ClassDeclarationSyntax;
+            if (classNode != null)
+            {
+                var supportedAccessibilities = new[] { Accessibility.Private };
+                if (supportedAccessibilities.Contains(_newAccessibility))
+                {
+                    var modifiers = classNode.Modifiers;
+                    modifiers = modifiers.Replace(modifiers[0], SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
+
+                    return document.WithSyntaxRoot(rootNode.ReplaceNode(classNode, classNode.WithModifiers(modifiers)));
+                }
+            }
 
             // First, remove all but the first MainModifier
             while (HasMoreThanOneMainModifier(node))
             {
                 // Remove the last MainModifier
                 rootNode = rootNode.ReplaceToken(GetLastMainModifier(node), SyntaxFactory.Token(SyntaxKind.None));
-                node = GetClassTypeNode(rootNode);
+                node = GetTypeNode(rootNode);
             }
 
             // Second, replace the MainModifier with the NewModifiers
@@ -59,7 +73,7 @@ namespace HotCommands
             return document.WithSyntaxRoot(rootNode);
         }
 
-        private BaseTypeDeclarationSyntax GetClassTypeNode(SyntaxNode rootNode)
+        private BaseTypeDeclarationSyntax GetTypeNode(SyntaxNode rootNode)
         {
             return rootNode.FindNode(_context.Span) as BaseTypeDeclarationSyntax;
         }
