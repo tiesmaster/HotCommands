@@ -20,6 +20,19 @@ namespace HotRefactorings.Tests
             VerifyRefactoring(oldSource, newSource, 0, refactoringTitle);
         }
 
+        [Theory]
+        [InlineData("public", new[] { "To Protected", "To Internal", "To Private", "To Protected Internal" })]
+        [InlineData("protected", new[] { "To Public", "To Internal", "To Private", "To Protected Internal" })]
+        [InlineData("internal", new[] { "To Public", "To Protected", "To Private", "To Protected Internal" })]
+        [InlineData("private", new[] { "To Public", "To Protected", "To Internal", "To Protected Internal" })]
+        [InlineData("protected internal", new[] { "To Public", "To Protected (only)", "To Internal (only)", "To Private" })]
+        public void GivenAccessibilityThenActionsPresentTheory(string fromModifier, string[] expectedRefactorings)
+        {
+            var source = CreateClassWithModifier(fromModifier);
+
+            VerifyRefactoringPresent(source, 0, expectedRefactorings);
+        }
+
         [Fact]
         public void ProtectedInternalToPublicTest()
         {

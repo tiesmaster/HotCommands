@@ -32,6 +32,19 @@ namespace TestHelper
             Assert.Equal(newSource, actual);
         }
 
+        protected void VerifyRefactoringPresent(string source, int position, string[] expectedCodeActionTitles)
+        {
+            var codeRefactoringProvider = GetCodeRefactoringProvider();
+            var document = DocumentFactory.CreateDocument(source, LanguageNames.CSharp);
+
+            var actions = new List<CodeAction>();
+            var context = new CodeRefactoringContext(document, TextSpan.FromBounds(position, position), a => actions.Add(a), CancellationToken.None);
+
+            codeRefactoringProvider.ComputeRefactoringsAsync(context).Wait();
+
+            Assert.Equal(expectedCodeActionTitles, actions.Select(action => action.Title));
+        }
+
         private static Document ApplyCodeAction(Document document, CodeAction codeAction)
         {
             var operations = codeAction.GetOperationsAsync(CancellationToken.None).Result;
