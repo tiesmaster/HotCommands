@@ -165,7 +165,6 @@
     <Compile Include="Actions\ExtractClassAction.cs" />
     <Compile Include="Actions\ContextEntities\ExtractClassContext.cs" />
     <Compile Include="Actions\ContextEntities\IActionContext.cs" />
-    <Compile Include="Actions\ContextEntities\IModifierActionContext.cs" />
     <Compile Include="Actions\MoveFileToFolderAction.cs" />
     <Compile Include="Actions\RenameFileAction.cs" />
     <Compile Include="Extensions\CSharpExtensions.cs" />
