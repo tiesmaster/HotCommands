@@ -31,9 +31,9 @@ namespace HotCommands
 
         protected override async Task<Document> GetChangedDocumentAsync (CancellationToken cancellationToken)
         {
-            Document document = _legacyContext.Context.Document;
+            Document document = _context.Document;
 
-            SyntaxNode rootNode = await document.GetSyntaxRootAsync(_legacyContext.Context.CancellationToken).ConfigureAwait(false);
+            SyntaxNode rootNode = await document.GetSyntaxRootAsync(_context.CancellationToken).ConfigureAwait(false);
             BaseTypeDeclarationSyntax node = GetClassTypeNode(rootNode);
             if (node == null) return document;
 
@@ -54,7 +54,7 @@ namespace HotCommands
 
         private BaseTypeDeclarationSyntax GetClassTypeNode(SyntaxNode rootNode)
         {
-            return rootNode.FindNode(_legacyContext.Context.Span) as BaseTypeDeclarationSyntax;
+            return rootNode.FindNode(_context.Span) as BaseTypeDeclarationSyntax;
         }
 
         private bool HasMoreThanOneMainModifier(BaseTypeDeclarationSyntax node)
