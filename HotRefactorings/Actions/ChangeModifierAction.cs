@@ -11,26 +11,26 @@ namespace HotCommands
 {
     internal sealed class ChangeModifierAction : CodeAction
     {
-        ChangeModifierContext _context;
+        private readonly ChangeModifierContext _legacyContext;
 
         public override string Title
         {
             get
             {
-                return _context.Title;
+                return _legacyContext.Title;
             }
         }
 
-        public ChangeModifierAction (ChangeModifierContext context)
+        public ChangeModifierAction (ChangeModifierContext legacyContext)
         {
-            _context = context;
+            _legacyContext = legacyContext;
         }
 
         protected override async Task<Document> GetChangedDocumentAsync (CancellationToken cancellationToken)
         {
-            Document document = _context.Context.Document;
+            Document document = _legacyContext.Context.Document;
 
-            SyntaxNode rootNode = await document.GetSyntaxRootAsync(_context.Context.CancellationToken).ConfigureAwait(false);
+            SyntaxNode rootNode = await document.GetSyntaxRootAsync(_legacyContext.Context.CancellationToken).ConfigureAwait(false);
             BaseTypeDeclarationSyntax node = GetClassTypeNode(rootNode);
             if (node == null) return document;
 
@@ -43,7 +43,7 @@ namespace HotCommands
             }
 
             // Second, replace the MainModifier with the NewModifiers
-            rootNode = rootNode.ReplaceToken(node.Modifiers.First(), _context.NewModifiers);
+            rootNode = rootNode.ReplaceToken(node.Modifiers.First(), _legacyContext.NewModifiers);
 
             // Cleanup additional modifiers (ie. "internal" left behind)
             return document.WithSyntaxRoot(rootNode);
@@ -51,7 +51,7 @@ namespace HotCommands
 
         private BaseTypeDeclarationSyntax GetClassTypeNode(SyntaxNode rootNode)
         {
-            return rootNode.FindNode(_context.Context.Span) as BaseTypeDeclarationSyntax;
+            return rootNode.FindNode(_legacyContext.Context.Span) as BaseTypeDeclarationSyntax;
         }
 
         private bool HasMoreThanOneMainModifier(BaseTypeDeclarationSyntax node)
