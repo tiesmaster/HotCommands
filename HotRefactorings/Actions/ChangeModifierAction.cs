@@ -48,11 +48,11 @@ namespace HotCommands
             var classNode = node as ClassDeclarationSyntax;
             if (classNode != null)
             {
-                var supportedAccessibilities = new[] { Accessibility.Private };
+                var supportedAccessibilities = new[] { Accessibility.Internal, Accessibility.Private };
                 if (supportedAccessibilities.Contains(_newAccessibility))
                 {
                     var modifiers = classNode.Modifiers;
-                    modifiers = modifiers.Replace(modifiers[0], SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
+                    modifiers = modifiers.Replace(modifiers[0], GetNewAccessibilityToken(_newAccessibility));
 
                     return document.WithSyntaxRoot(rootNode.ReplaceNode(classNode, classNode.WithModifiers(modifiers)));
                 }
@@ -71,6 +71,28 @@ namespace HotCommands
 
             // Cleanup additional modifiers (ie. "internal" left behind)
             return document.WithSyntaxRoot(rootNode);
+        }
+
+        private static SyntaxToken GetNewAccessibilityToken(Accessibility newAccessibility)
+            => SyntaxFactory.Token(GetNewAccessibilityKind(newAccessibility));
+
+        private static SyntaxKind GetNewAccessibilityKind(Accessibility newAccessibility)
+        {
+            switch (newAccessibility)
+            {
+                case Accessibility.Public:
+                    return SyntaxKind.PublicKeyword;
+                case Accessibility.Protected:
+                    return SyntaxKind.ProtectedKeyword;
+                case Accessibility.Internal:
+                    return SyntaxKind.InternalKeyword;
+                case Accessibility.Private:
+                    return SyntaxKind.PrivateKeyword;
+                case Accessibility.ProtectedOrInternal:
+                    throw new NotImplementedException();
+                default:
+                    throw new ArgumentException(nameof(newAccessibility));
+            }
         }
 
         private BaseTypeDeclarationSyntax GetTypeNode(SyntaxNode rootNode)
