@@ -32,7 +32,7 @@ namespace TestHelper
             Assert.Equal(newSource, actual);
         }
 
-        protected void VerifyRefactoringPresent(string source, int position, string[] expectedCodeActionTitles)
+        protected void VerifyRefactoringPresent(string source, int position, IEnumerable<string> expectedCodeActionTitles)
         {
             var codeRefactoringProvider = GetCodeRefactoringProvider();
             var document = DocumentFactory.CreateDocument(source, LanguageNames.CSharp);

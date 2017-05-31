@@ -2,6 +2,7 @@
 using Xunit;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using TestHelper;
+using System.Linq;
 
 namespace HotRefactorings.Tests
 {
@@ -31,6 +32,24 @@ namespace HotRefactorings.Tests
             var source = CreateClassWithModifier(fromModifier);
 
             VerifyRefactoringPresent(source, 0, expectedRefactorings);
+        }
+
+        [Theory]
+        [InlineData("public private")]
+        [InlineData("public protected")]
+        [InlineData("public internal")]
+        [InlineData("public private")]
+
+        [InlineData("public protected internal")]
+        [InlineData("public protected private")]
+
+        [InlineData("internal private")]
+        public void InvalidAccessibilityPresentsAllTheory(string fromModifier)
+        {
+            var expectedRefactorings = new[] { "To Public", "To Protected", "To Internal", "To Private", "To Protected Internal" };
+
+            var source = CreateClassWithModifier(fromModifier);
+            VerifyRefactoringPresent(source, 0, expectedRefactorings.Select(title => $"{title} (Remove redundant modifiers)"));
         }
 
         [Fact]
