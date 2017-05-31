@@ -11,7 +11,7 @@ namespace HotCommands
 {
     internal sealed class ChangeModifierAction : CodeAction
     {
-        IModifierActionContext _context;
+        ChangeModifierContext _context;
 
         public override string Title
         {
@@ -21,7 +21,7 @@ namespace HotCommands
             }
         }
 
-        public ChangeModifierAction (IModifierActionContext context)
+        public ChangeModifierAction (ChangeModifierContext context)
         {
             _context = context;
         }

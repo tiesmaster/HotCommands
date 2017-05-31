@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CodeRefactorings;
 
 namespace HotCommands
 {
-    internal sealed class ChangeModifierContext : IModifierActionContext
+    internal sealed class ChangeModifierContext
     {
         public CodeRefactoringContext Context { get; set; }
 
