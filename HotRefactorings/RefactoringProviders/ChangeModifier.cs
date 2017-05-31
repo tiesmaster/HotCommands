@@ -42,7 +42,6 @@ namespace HotCommands
             {
                 context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
                 {
-                    Context = context,
                     Title = "To Public" + (hasRedundantModifiers ? " (Remove redundant modifiers)" : ""),
                     NewModifiers = new[] {SyntaxFactory.Token(SyntaxKind.PublicKeyword)}
                 }));
@@ -56,7 +55,6 @@ namespace HotCommands
 
                 context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
                 {
-                    Context = context,
                     Title = title,
                     NewModifiers = new[] { SyntaxFactory.Token(SyntaxKind.ProtectedKeyword) }
                 }));
@@ -70,7 +68,6 @@ namespace HotCommands
 
                 context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
                 {
-                    Context = context,
                     Title = title,
                     NewModifiers = new[] {SyntaxFactory.Token(SyntaxKind.InternalKeyword)}
                 }));
@@ -80,7 +77,6 @@ namespace HotCommands
             {
                 context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
                 {
-                    Context = context,
                     Title = "To Private" + (hasRedundantModifiers ? " (Remove redundant modifiers)" : ""),
                     NewModifiers = new[] {SyntaxFactory.Token(SyntaxKind.PrivateKeyword)}
                 }));
@@ -90,7 +86,6 @@ namespace HotCommands
             {
                 context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
                 {
-                    Context = context,
                     Title = "To Protected Internal" + (hasRedundantModifiers ? " (Remove redundant modifiers)" : ""),
                     NewModifiers = new[] {SyntaxFactory.Token(SyntaxKind.ProtectedKeyword), SyntaxFactory.Token(SyntaxKind.InternalKeyword)}
                 }));
