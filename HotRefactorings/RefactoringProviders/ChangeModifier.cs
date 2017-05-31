@@ -40,7 +40,7 @@ namespace HotCommands
 
             if (mainModifierCount > 1 || !hasPublicKeyword)
             {
-                context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
+                context.RegisterRefactoring(new ChangeModifierAction(context, Accessibility.Public, new ChangeModifierContext
                 {
                     Title = "To Public" + (hasRedundantModifiers ? " (Remove redundant modifiers)" : ""),
                     NewModifiers = new[] {SyntaxFactory.Token(SyntaxKind.PublicKeyword)}
@@ -53,7 +53,7 @@ namespace HotCommands
                 if (hasRedundantModifiers) title += " (Remove redundant modifiers)";
                 else if (hasProtectedInternalKeywords) title += " (only)";
 
-                context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
+                context.RegisterRefactoring(new ChangeModifierAction(context, Accessibility.Protected, new ChangeModifierContext
                 {
                     Title = title,
                     NewModifiers = new[] { SyntaxFactory.Token(SyntaxKind.ProtectedKeyword) }
@@ -66,7 +66,7 @@ namespace HotCommands
                 if (hasRedundantModifiers) title += " (Remove redundant modifiers)";
                 else if (hasProtectedInternalKeywords) title += " (only)";
 
-                context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
+                context.RegisterRefactoring(new ChangeModifierAction(context, Accessibility.Internal, new ChangeModifierContext
                 {
                     Title = title,
                     NewModifiers = new[] {SyntaxFactory.Token(SyntaxKind.InternalKeyword)}
@@ -75,7 +75,7 @@ namespace HotCommands
 
             if (mainModifierCount > 1 || !hasPrivateKeyword)
             {
-                context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
+                context.RegisterRefactoring(new ChangeModifierAction(context, Accessibility.Private, new ChangeModifierContext
                 {
                     Title = "To Private" + (hasRedundantModifiers ? " (Remove redundant modifiers)" : ""),
                     NewModifiers = new[] {SyntaxFactory.Token(SyntaxKind.PrivateKeyword)}
@@ -84,7 +84,7 @@ namespace HotCommands
 
             if (mainModifierCount > 2 || !hasProtectedInternalKeywords)
             {
-                context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
+                context.RegisterRefactoring(new ChangeModifierAction(context, Accessibility.ProtectedOrInternal, new ChangeModifierContext
                 {
                     Title = "To Protected Internal" + (hasRedundantModifiers ? " (Remove redundant modifiers)" : ""),
                     NewModifiers = new[] {SyntaxFactory.Token(SyntaxKind.ProtectedKeyword), SyntaxFactory.Token(SyntaxKind.InternalKeyword)}

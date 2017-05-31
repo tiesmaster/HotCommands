@@ -7,13 +7,15 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Editing;
 
 namespace HotCommands
 {
     internal sealed class ChangeModifierAction : CodeAction
     {
-        private readonly ChangeModifierContext _legacyContext;
         private readonly CodeRefactoringContext _context;
+        private readonly Accessibility _newAccessibility;
+        private readonly ChangeModifierContext _legacyContext;
 
         public override string Title
         {
@@ -23,9 +25,14 @@ namespace HotCommands
             }
         }
 
-        public ChangeModifierAction (CodeRefactoringContext context, ChangeModifierContext legacyContext)
+        public ChangeModifierAction(
+            CodeRefactoringContext context,
+            Accessibility newAccessibility,
+            ChangeModifierContext legacyContext)
         {
             _context = context;
+            _newAccessibility = newAccessibility;
+
             _legacyContext = legacyContext;
         }
 
