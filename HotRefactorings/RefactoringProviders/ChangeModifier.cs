@@ -40,7 +40,7 @@ namespace HotCommands
 
             if (mainModifierCount > 1 || !hasPublicKeyword)
             {
-                context.RegisterRefactoring(new ChangeModifierAction(new ChangeModifierContext
+                context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
                 {
                     Context = context,
                     Title = "To Public" + (hasRedundantModifiers ? " (Remove redundant modifiers)" : ""),
@@ -54,7 +54,7 @@ namespace HotCommands
                 if (hasRedundantModifiers) title += " (Remove redundant modifiers)";
                 else if (hasProtectedInternalKeywords) title += " (only)";
 
-                context.RegisterRefactoring(new ChangeModifierAction(new ChangeModifierContext
+                context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
                 {
                     Context = context,
                     Title = title,
@@ -68,7 +68,7 @@ namespace HotCommands
                 if (hasRedundantModifiers) title += " (Remove redundant modifiers)";
                 else if (hasProtectedInternalKeywords) title += " (only)";
 
-                context.RegisterRefactoring(new ChangeModifierAction(new ChangeModifierContext
+                context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
                 {
                     Context = context,
                     Title = title,
@@ -78,7 +78,7 @@ namespace HotCommands
 
             if (mainModifierCount > 1 || !hasPrivateKeyword)
             {
-                context.RegisterRefactoring(new ChangeModifierAction(new ChangeModifierContext
+                context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
                 {
                     Context = context,
                     Title = "To Private" + (hasRedundantModifiers ? " (Remove redundant modifiers)" : ""),
@@ -88,7 +88,7 @@ namespace HotCommands
 
             if (mainModifierCount > 2 || !hasProtectedInternalKeywords)
             {
-                context.RegisterRefactoring(new ChangeModifierAction(new ChangeModifierContext
+                context.RegisterRefactoring(new ChangeModifierAction(context, new ChangeModifierContext
                 {
                     Context = context,
                     Title = "To Protected Internal" + (hasRedundantModifiers ? " (Remove redundant modifiers)" : ""),

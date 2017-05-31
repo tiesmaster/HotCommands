@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -12,6 +13,7 @@ namespace HotCommands
     internal sealed class ChangeModifierAction : CodeAction
     {
         private readonly ChangeModifierContext _legacyContext;
+        private readonly CodeRefactoringContext _context;
 
         public override string Title
         {
@@ -21,8 +23,9 @@ namespace HotCommands
             }
         }
 
-        public ChangeModifierAction (ChangeModifierContext legacyContext)
+        public ChangeModifierAction (CodeRefactoringContext context, ChangeModifierContext legacyContext)
         {
+            _context = context;
             _legacyContext = legacyContext;
         }
 
