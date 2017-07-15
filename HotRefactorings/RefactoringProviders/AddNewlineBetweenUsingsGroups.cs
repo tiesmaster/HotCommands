@@ -29,7 +29,7 @@ namespace HotCommands.RefactoringProviders
                 var currentUsing = rootCompilation.Usings[i];
 
                 var nextToplevelNamespaceName = GetToplevelNamespaceName(currentUsing);
-                if (previousToplevelNamespaceName != nextToplevelNamespaceName && HasTrailingEmptyNewline(currentUsing))
+                if (previousToplevelNamespaceName != nextToplevelNamespaceName && !HasLeadingNewline(currentUsing))
                 {
                     usingPositionsMissingNewline.Add(i - 1);
                 }
@@ -58,8 +58,15 @@ namespace HotCommands.RefactoringProviders
             }
         }
 
-        private static bool HasTrailingEmptyNewline(SyntaxNode node)
-            => node.GetTrailingTrivia().Last() != SyntaxFactory.CarriageReturnLineFeed;
+        private static bool HasLeadingNewline(SyntaxNode node)
+        {
+            if (!node.HasLeadingTrivia)
+            {
+                return false;
+            }
+
+            return node.GetLeadingTrivia().First() != SyntaxFactory.CarriageReturnLineFeed;
+        }
     }
 
     internal class AddNewlineBetweenUsingsGroupsAction : CodeAction

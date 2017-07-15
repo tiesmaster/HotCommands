@@ -109,6 +109,63 @@ class Class1
             VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
+        [Fact(Skip = "")]
+        public void ListOfNamespacesWithMultipleGroupsWhereSomeGroupsHaveMultipleUsings_ShouldOnlyAddNewlinesBetweenToplevelGroups()
+        {
+            var oldSource =
+@"using System;
+using System.Threading.Tasks;
+using Microsoft;
+using Microsoft.CodeAnalysis;
+using Xunit;
+
+class Class1
+{
+}";
+            var newSource =
+@"using System;
+using System.Threading.Tasks;
+
+using Microsoft;
+using Microsoft.CodeAnalysis;
+
+using Xunit;
+
+class Class1
+{
+}";
+
+            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+        }
+
+        [Fact]
+        public void GroupsWhichAreAlreadySeparated_ShouldNotGetTwoNewlines()
+        {
+            var oldSource =
+@"using System;
+using System.Threading.Tasks;
+using Microsoft;
+
+using Xunit;
+
+class Class1
+{
+}";
+            var newSource =
+@"using System;
+using System.Threading.Tasks;
+
+using Microsoft;
+
+using Xunit;
+
+class Class1
+{
+}";
+
+            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+        }
+
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
             return new AddNewlineBetweenUsingsGroups();
