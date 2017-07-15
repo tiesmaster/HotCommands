@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -17,8 +15,8 @@ namespace HotCommands.RefactoringProviders
     {
         public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
         {
-            var rootCompilation = await context.Document.GetSyntaxRootAsync(context.CancellationToken)
-                .ConfigureAwait(false) as CompilationUnitSyntax;
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var rootCompilation = root as CompilationUnitSyntax;
 
             var listOfUsings = rootCompilation.Usings;
 
@@ -29,7 +27,7 @@ namespace HotCommands.RefactoringProviders
 
             var firstUsing = listOfUsings[0];
 
-            var usingPositionsMissingNewline = new List<int>();
+            var nodesMissingNewline = new List<SyntaxNode>();
             for (int i = 1; i < rootCompilation.Usings.Count; i++)
             {
                 var previousUsing = rootCompilation.Usings[i - 1];
@@ -37,13 +35,16 @@ namespace HotCommands.RefactoringProviders
 
                 if (!TopLevelNamespaceEquals(previousUsing, currentUsing) && !HasLeadingNewline(currentUsing))
                 {
-                    usingPositionsMissingNewline.Add(i - 1);
+                    nodesMissingNewline.Add(previousUsing);
                 }
             }
 
-            if (usingPositionsMissingNewline.Any())
+            if (nodesMissingNewline.Any())
             {
-                context.RegisterRefactoring(new AddNewlineBetweenUsingsGroupsAction(context, usingPositionsMissingNewline));
+                context.RegisterRefactoring(
+                    CodeAction.Create(
+                        "Add newline betweeen using groups",
+                        _ => AddNewlinesToNodes(context.Document, root, nodesMissingNewline)));
             }
         }
 
@@ -81,39 +82,17 @@ namespace HotCommands.RefactoringProviders
 
             return node.GetLeadingTrivia().First() != SyntaxFactory.CarriageReturnLineFeed;
         }
-    }
 
-    internal class AddNewlineBetweenUsingsGroupsAction : CodeAction
-    {
-        private readonly CodeRefactoringContext _context;
-        private readonly IEnumerable<int> _usingPositionsMissingNewline;
-
-        public AddNewlineBetweenUsingsGroupsAction(
-            CodeRefactoringContext context,
-            IEnumerable<int> usingPositionsMissingNewline)
+        private Task<Document> AddNewlinesToNodes(
+            Document document,
+            SyntaxNode root,
+            IEnumerable<SyntaxNode> nodesMissingNewline)
         {
-            _context = context;
-            _usingPositionsMissingNewline = usingPositionsMissingNewline;
+            var newRoot = root.ReplaceNodes(nodesMissingNewline, (oldNode, _) => AddTrailingNewline(oldNode));
+            return Task.FromResult(document.WithSyntaxRoot(newRoot));
         }
 
-        public override string Title => "Add newline betweeen using groups";
-
-        protected override async Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
-        {
-            var document = _context.Document;
-            var rootCompilation = await document.GetSyntaxRootAsync(_context.CancellationToken).ConfigureAwait(false) as CompilationUnitSyntax;
-
-            var listOfUsings = rootCompilation.Usings;
-            foreach (var usingPosition in _usingPositionsMissingNewline)
-            {
-                var usingMissingNewline = listOfUsings[usingPosition];
-                listOfUsings = listOfUsings.Replace(usingMissingNewline, AddTrailingNewline(usingMissingNewline));
-            }
-
-            return document.WithSyntaxRoot(rootCompilation.WithUsings(listOfUsings));
-        }
-
-        private static TNode AddTrailingNewline<TNode>(TNode node) where TNode : SyntaxNode
+        private static SyntaxNode AddTrailingNewline(SyntaxNode node)
         {
             var oldTrivia = node.GetTrailingTrivia();
             return node.WithTrailingTrivia(oldTrivia.Add(SyntaxFactory.CarriageReturnLineFeed));
