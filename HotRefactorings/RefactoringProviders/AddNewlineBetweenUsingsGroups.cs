@@ -20,7 +20,14 @@ namespace HotCommands.RefactoringProviders
             var rootCompilation = await context.Document.GetSyntaxRootAsync(context.CancellationToken)
                 .ConfigureAwait(false) as CompilationUnitSyntax;
 
-            var firstUsing = rootCompilation.Usings[0];
+            var listOfUsings = rootCompilation.Usings;
+
+            if (listOfUsings.Count < 2)
+            {
+                return;
+            }
+
+            var firstUsing = listOfUsings[0];
 
             var usingPositionsMissingNewline = new List<int>();
             for (int i = 1; i < rootCompilation.Usings.Count; i++)
