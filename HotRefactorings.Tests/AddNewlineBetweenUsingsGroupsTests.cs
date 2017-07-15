@@ -82,7 +82,7 @@ class Class1
             VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
-        [Fact(Skip = "First refactor the sut")]
+        [Fact]
         public void ListOfNamespacesWithMultipleGroups_ShouldAddNewLinesBetweenAllGroups()
         {
             var oldSource =
