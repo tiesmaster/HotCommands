@@ -22,25 +22,30 @@ namespace HotCommands.RefactoringProviders
 
             var firstUsing = rootCompilation.Usings[0];
 
-            var previousToplevelNamespaceName = GetFirstNamespaceName(firstUsing.Name);
             var usingPositionsMissingNewline = new List<int>();
             for (int i = 1; i < rootCompilation.Usings.Count; i++)
             {
+                var previousUsing = rootCompilation.Usings[i - 1];
                 var currentUsing = rootCompilation.Usings[i];
 
-                var nextToplevelNamespaceName = GetToplevelNamespaceName(currentUsing);
-                if (previousToplevelNamespaceName != nextToplevelNamespaceName && !HasLeadingNewline(currentUsing))
+                if (!TopLevelNamespaceEquals(previousUsing, currentUsing) && !HasLeadingNewline(currentUsing))
                 {
                     usingPositionsMissingNewline.Add(i - 1);
                 }
-
-                previousToplevelNamespaceName = nextToplevelNamespaceName;
             }
 
             if (usingPositionsMissingNewline.Any())
             {
                 context.RegisterRefactoring(new AddNewlineBetweenUsingsGroupsAction(context, usingPositionsMissingNewline));
             }
+        }
+
+        private bool TopLevelNamespaceEquals(UsingDirectiveSyntax left, UsingDirectiveSyntax right)
+        {
+            var leftToplevel = GetToplevelNamespaceName(right);
+            var rightToplevel = GetToplevelNamespaceName(left);
+
+            return leftToplevel == rightToplevel;
         }
 
         private string GetToplevelNamespaceName(UsingDirectiveSyntax usingNode)
