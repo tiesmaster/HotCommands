@@ -109,7 +109,7 @@ class Class1
             VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
-        [Fact(Skip = "")]
+        [Fact]
         public void ListOfNamespacesWithMultipleGroupsWhereSomeGroupsHaveMultipleUsings_ShouldOnlyAddNewlinesBetweenToplevelGroups()
         {
             var oldSource =

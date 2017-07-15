@@ -33,6 +33,8 @@ namespace HotCommands.RefactoringProviders
                 {
                     usingPositionsMissingNewline.Add(i - 1);
                 }
+
+                previousToplevelNamespaceName = nextToplevelNamespaceName;
             }
 
             if (usingPositionsMissingNewline.Any())
