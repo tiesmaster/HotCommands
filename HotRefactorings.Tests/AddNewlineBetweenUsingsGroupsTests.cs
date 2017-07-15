@@ -58,6 +58,30 @@ class Class1
             VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
+        [Fact]
+        public void NamespaceWithMultipleDots()
+        {
+            var oldSource =
+@"using System;
+using System.Threading.Tasks;
+using Microsoft;
+
+class Class1
+{
+}";
+            var newSource =
+@"using System;
+using System.Threading.Tasks;
+
+using Microsoft;
+
+class Class1
+{
+}";
+
+            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+        }
+
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
             return new AddNewlineBetweenUsingsGroups();
