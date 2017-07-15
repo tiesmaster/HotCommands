@@ -22,14 +22,14 @@ namespace HotCommands.RefactoringProviders
 
             var firstUsing = rootCompilation.Usings[0];
 
-            var previousToplevelNamespaceName = GetToplevelNamespaceName(firstUsing.Name);
+            var previousToplevelNamespaceName = GetFirstNamespaceName(firstUsing.Name);
             var usingPositionsMissingNewline = new List<int>();
             for (int i = 1; i < rootCompilation.Usings.Count; i++)
             {
-                var nextUsing = rootCompilation.Usings[i];
+                var currentUsing = rootCompilation.Usings[i];
 
-                var nextToplevelNamespaceName = GetToplevelNamespaceName(nextUsing.Name);
-                if (previousToplevelNamespaceName != nextToplevelNamespaceName && HasTrailingEmptyNewline(nextUsing))
+                var nextToplevelNamespaceName = GetToplevelNamespaceName(currentUsing);
+                if (previousToplevelNamespaceName != nextToplevelNamespaceName && HasTrailingEmptyNewline(currentUsing))
                 {
                     usingPositionsMissingNewline.Add(i - 1);
                 }
@@ -41,10 +41,10 @@ namespace HotCommands.RefactoringProviders
             }
         }
 
-        private static bool HasTrailingEmptyNewline(SyntaxNode node)
-            => node.GetTrailingTrivia().Last() != SyntaxFactory.CarriageReturnLineFeed;
+        private string GetToplevelNamespaceName(UsingDirectiveSyntax usingNode)
+            => GetFirstNamespaceName(usingNode.Name);
 
-        private string GetToplevelNamespaceName(NameSyntax nameNode)
+        private string GetFirstNamespaceName(NameSyntax nameNode)
         {
             var identifierNode = nameNode as IdentifierNameSyntax;
             if (identifierNode != null)
@@ -54,9 +54,12 @@ namespace HotCommands.RefactoringProviders
             else
             {
                 var qualifiedNode = (QualifiedNameSyntax)nameNode;
-                return GetToplevelNamespaceName(qualifiedNode.Left);
+                return GetFirstNamespaceName(qualifiedNode.Left);
             }
         }
+
+        private static bool HasTrailingEmptyNewline(SyntaxNode node)
+            => node.GetTrailingTrivia().Last() != SyntaxFactory.CarriageReturnLineFeed;
     }
 
     internal class AddNewlineBetweenUsingsGroupsAction : CodeAction
