@@ -82,6 +82,33 @@ class Class1
             VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
+        [Fact(Skip = "First refactor the sut")]
+        public void ListOfNamespacesWithMultipleGroups_ShouldAddNewLinesBetweenAllGroups()
+        {
+            var oldSource =
+@"using System;
+using System.Threading.Tasks;
+using Microsoft;
+using Xunit;
+
+class Class1
+{
+}";
+            var newSource =
+@"using System;
+using System.Threading.Tasks;
+
+using Microsoft;
+
+using Xunit;
+
+class Class1
+{
+}";
+
+            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+        }
+
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
             return new AddNewlineBetweenUsingsGroups();

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -22,14 +24,20 @@ namespace HotCommands.RefactoringProviders
             var firstUsing = rootCompilation.Usings[0];
 
             var lastGroupName = GetFirstName(firstUsing.Name);
+            var positionsToFixup = new List<int>();
             for (int i = 1; i < rootCompilation.Usings.Count; i++)
             {
                 var nextUsing = rootCompilation.Usings[i];
                 var nextGroupName = GetFirstName(nextUsing.Name);
                 if (lastGroupName != nextGroupName && nextUsing.GetTrailingTrivia().Last() != eolTrivia)
                 {
-                    context.RegisterRefactoring(new AddNewlineBetweenUsingsGroupsAction(context, i - 1));
+                    positionsToFixup.Add(i - 1);
                 }
+            }
+
+            if (positionsToFixup.Any())
+            {
+                context.RegisterRefactoring(new AddNewlineBetweenUsingsGroupsAction(context, positionsToFixup));
             }
         }
 
@@ -51,12 +59,12 @@ namespace HotCommands.RefactoringProviders
     internal class AddNewlineBetweenUsingsGroupsAction : CodeAction
     {
         private readonly CodeRefactoringContext _context;
-        private readonly int _positionToFixup;
+        private readonly IEnumerable<int> _positionsToFixup;
 
-        public AddNewlineBetweenUsingsGroupsAction(CodeRefactoringContext context, int positionToFixup)
+        public AddNewlineBetweenUsingsGroupsAction(CodeRefactoringContext context, IEnumerable<int> positionsToFixup)
         {
             _context = context;
-            _positionToFixup = positionToFixup;
+            _positionsToFixup = positionsToFixup;
         }
 
         public override string Title => "Add newline betweeen using groups";
@@ -68,13 +76,16 @@ namespace HotCommands.RefactoringProviders
 
             var usings = rootCompilation.Usings;
 
-            var usingsToFixup = usings[_positionToFixup];
-            var oldTrivia = usingsToFixup.GetTrailingTrivia();
-            var newNode = usingsToFixup.WithTrailingTrivia(oldTrivia.Add(SyntaxFactory.CarriageReturnLineFeed));
+            foreach (var positionToFixup in _positionsToFixup)
+            {
+                var usingsToFixup = usings[positionToFixup];
+                var oldTrivia = usingsToFixup.GetTrailingTrivia();
+                var newNode = usingsToFixup.WithTrailingTrivia(oldTrivia.Add(SyntaxFactory.CarriageReturnLineFeed));
 
-            usings = usings.Replace(usingsToFixup, newNode);
-            rootCompilation = rootCompilation.WithUsings(usings);
-            return document.WithSyntaxRoot(rootCompilation);
+                usings = usings.Replace(usingsToFixup, newNode);
+            }
+
+            return document.WithSyntaxRoot(rootCompilation.WithUsings(usings));
         }
     }
 }
