@@ -17,31 +17,34 @@ namespace HotCommands.RefactoringProviders
     {
         public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
         {
-            var rootCompilation = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false) as CompilationUnitSyntax;
-
-            var eolTrivia = SyntaxFactory.CarriageReturnLineFeed;
+            var rootCompilation = await context.Document.GetSyntaxRootAsync(context.CancellationToken)
+                .ConfigureAwait(false) as CompilationUnitSyntax;
 
             var firstUsing = rootCompilation.Usings[0];
 
-            var lastGroupName = GetFirstName(firstUsing.Name);
-            var positionsToFixup = new List<int>();
+            var previousToplevelNamespaceName = GetToplevelNamespaceName(firstUsing.Name);
+            var usingPositionsMissingNewline = new List<int>();
             for (int i = 1; i < rootCompilation.Usings.Count; i++)
             {
                 var nextUsing = rootCompilation.Usings[i];
-                var nextGroupName = GetFirstName(nextUsing.Name);
-                if (lastGroupName != nextGroupName && nextUsing.GetTrailingTrivia().Last() != eolTrivia)
+
+                var nextToplevelNamespaceName = GetToplevelNamespaceName(nextUsing.Name);
+                if (previousToplevelNamespaceName != nextToplevelNamespaceName && HasTrailingEmptyNewline(nextUsing))
                 {
-                    positionsToFixup.Add(i - 1);
+                    usingPositionsMissingNewline.Add(i - 1);
                 }
             }
 
-            if (positionsToFixup.Any())
+            if (usingPositionsMissingNewline.Any())
             {
-                context.RegisterRefactoring(new AddNewlineBetweenUsingsGroupsAction(context, positionsToFixup));
+                context.RegisterRefactoring(new AddNewlineBetweenUsingsGroupsAction(context, usingPositionsMissingNewline));
             }
         }
 
-        private string GetFirstName(NameSyntax nameNode)
+        private static bool HasTrailingEmptyNewline(SyntaxNode node)
+            => node.GetTrailingTrivia().Last() != SyntaxFactory.CarriageReturnLineFeed;
+
+        private string GetToplevelNamespaceName(NameSyntax nameNode)
         {
             var identifierNode = nameNode as IdentifierNameSyntax;
             if (identifierNode != null)
@@ -51,7 +54,7 @@ namespace HotCommands.RefactoringProviders
             else
             {
                 var qualifiedNode = (QualifiedNameSyntax)nameNode;
-                return GetFirstName(qualifiedNode.Left);
+                return GetToplevelNamespaceName(qualifiedNode.Left);
             }
         }
     }
@@ -59,12 +62,14 @@ namespace HotCommands.RefactoringProviders
     internal class AddNewlineBetweenUsingsGroupsAction : CodeAction
     {
         private readonly CodeRefactoringContext _context;
-        private readonly IEnumerable<int> _positionsToFixup;
+        private readonly IEnumerable<int> _usingPositionsMissingNewline;
 
-        public AddNewlineBetweenUsingsGroupsAction(CodeRefactoringContext context, IEnumerable<int> positionsToFixup)
+        public AddNewlineBetweenUsingsGroupsAction(
+            CodeRefactoringContext context,
+            IEnumerable<int> usingPositionsMissingNewline)
         {
             _context = context;
-            _positionsToFixup = positionsToFixup;
+            _usingPositionsMissingNewline = usingPositionsMissingNewline;
         }
 
         public override string Title => "Add newline betweeen using groups";
@@ -74,18 +79,20 @@ namespace HotCommands.RefactoringProviders
             var document = _context.Document;
             var rootCompilation = await document.GetSyntaxRootAsync(_context.CancellationToken).ConfigureAwait(false) as CompilationUnitSyntax;
 
-            var usings = rootCompilation.Usings;
-
-            foreach (var positionToFixup in _positionsToFixup)
+            var listOfUsings = rootCompilation.Usings;
+            foreach (var usingPosition in _usingPositionsMissingNewline)
             {
-                var usingsToFixup = usings[positionToFixup];
-                var oldTrivia = usingsToFixup.GetTrailingTrivia();
-                var newNode = usingsToFixup.WithTrailingTrivia(oldTrivia.Add(SyntaxFactory.CarriageReturnLineFeed));
-
-                usings = usings.Replace(usingsToFixup, newNode);
+                var usingMissingNewline = listOfUsings[usingPosition];
+                listOfUsings = listOfUsings.Replace(usingMissingNewline, AddTrailingNewline(usingMissingNewline));
             }
 
-            return document.WithSyntaxRoot(rootCompilation.WithUsings(usings));
+            return document.WithSyntaxRoot(rootCompilation.WithUsings(listOfUsings));
+        }
+
+        private static TNode AddTrailingNewline<TNode>(TNode node) where TNode : SyntaxNode
+        {
+            var oldTrivia = node.GetTrailingTrivia();
+            return node.WithTrailingTrivia(oldTrivia.Add(SyntaxFactory.CarriageReturnLineFeed));
         }
     }
 }
